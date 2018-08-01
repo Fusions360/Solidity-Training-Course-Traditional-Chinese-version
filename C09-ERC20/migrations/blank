@@ -1,0 +1,2 @@
+This is a blank file to keep the 'migrations' folder on Git.
+Without the 'migrations' folder, the truffle cannot run correctly.

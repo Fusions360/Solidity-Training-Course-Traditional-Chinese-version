@@ -1,0 +1,22 @@
+Install development environment.
+
+1. Install NodeJS 5.0+
+   https://nodejs.org/en/download/
+
+2. Install Truffle by NodeJS
+   https://truffleframework.com/docs/getting_started/installation
+   > npm install -g truffle
+
+3. Install vscode (optional)
+   https://code.visualstudio.com/Docs/setup/setup-overview
+
+4. Install vscode entensions: solidity (author: Juan Blanco) (optional)
+
+RUN TESTS
+Use C01-SimpleStorage as example.
+Firstly, switch to the folder
+> cd C01-SimpleStorage
+Run specific test case
+> truffle test ./test/SimpleStorage.test.js
+Run all test case
+> truffle test

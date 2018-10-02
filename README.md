@@ -104,3 +104,5 @@ truffle test
     - 撰寫可升級智能合約必要的 Solidity Assembly 精簡說明
     - 代理合約 Proxy Contract
     - 儲存合約 Storage Contract
+13. C12-ECRecover
+    - 使用ECRecover驗證使用者簽署

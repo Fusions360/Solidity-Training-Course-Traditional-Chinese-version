@@ -3,7 +3,7 @@ const BigNumber = web3.BigNumber;
 
 contract('測試Withdraw合約', async (accounts) => {
 
-    const ether = new BigNumber(10**18).toNumber();
+    const ether = new BigNumber(10).pow(18);
     let richer1 = accounts[0];
     let richer2 = accounts[1];
     let richer3 = accounts[2];
@@ -29,7 +29,7 @@ contract('測試Withdraw合約', async (accounts) => {
 
         // 驗證最大以太幣提交數量
         let actualMostSent = await instance.mostSent.call();
-        assert.equal(actualMostSent.toNumber(), valueInit.toNumber(),
+        assert.equal(actualMostSent.toString(), valueInit.toString(),
             '最大以太幣提交數量錯誤');
 
         // 驗證以太王
@@ -38,31 +38,32 @@ contract('測試Withdraw合約', async (accounts) => {
 
         // 驗證參賽者可領取餘額
         let pendingWithdrawalOfRicher1 = await instance.pendingWithdrawals.call(richer1);
-        assert.equal(pendingWithdrawalOfRicher1.toNumber(), 0, 'richer1可領取餘額錯誤');
+        assert.equal(pendingWithdrawalOfRicher1.toString(), '0', 'richer1可領取餘額錯誤');
         let pendingWithdrawalRicher2 = await instance.pendingWithdrawals.call(richer2);
-        assert.equal(pendingWithdrawalRicher2.toNumber(), 0, 'richer2可領取餘額錯誤');
+        assert.equal(pendingWithdrawalRicher2.toString(), '0', 'richer2可領取餘額錯誤');
         let pendingWithdrawalRicher3 = await instance.pendingWithdrawals.call(richer3);
-        assert.equal(pendingWithdrawalRicher3.toNumber(), 0, 'richer3可領取餘額錯誤');
+        assert.equal(pendingWithdrawalRicher3.toString(), '0', 'richer3可領取餘額錯誤');
         
         // 計算部署合約成本
         let receiptOfCreateContract = await web3.eth.getTransactionReceipt(
             instance.transactionHash);
         let txOfCreateContract = 
             await web3.eth.getTransaction(instance.transactionHash);
-        let cost = receiptOfCreateContract.gasUsed * txOfCreateContract.gasPrice;
+        let cost = new BigNumber(receiptOfCreateContract.gasUsed)
+            .mul(txOfCreateContract.gasPrice);
 
         // 驗證richer1餘額
         let balanceRicher1 = await web3.eth.getBalance(richer1);
         assert.equal(
-            balanceRicher1.toNumber(), 
-            previousBalanceRicher1.toNumber() - cost - valueInit.toNumber(),
+            balanceRicher1.toString(), 
+            previousBalanceRicher1.minus(cost).minus(valueInit).toString(),
             'richer1餘額不一致'
         );
         
         // 記錄richer2先前餘額
         let previousBalanceRicher2 = await web3.eth.getBalance(richer2);
 
-        let value2 = new BigNumber(ether * 2);
+        let value2 = new BigNumber(ether).times(2);
         // richer2 競爭成為第二任以太王
         let receipt = await instance.becomeRichest(
             {value: value2, from: richer2}
@@ -71,7 +72,7 @@ contract('測試Withdraw合約', async (accounts) => {
 
         // 驗證最大以太幣提交數量
         actualMostSent = await instance.mostSent.call();
-        assert.equal(actualMostSent.toNumber(), value2.toNumber(),
+        assert.equal(actualMostSent.toString(), value2.toString(),
             '最大以太幣提交數量錯誤');
 
         // 驗證以太王
@@ -80,26 +81,27 @@ contract('測試Withdraw合約', async (accounts) => {
 
         // 驗證參賽者可領取餘額
         pendingWithdrawalOfRicher1 = await instance.pendingWithdrawals.call(richer1);
-        assert.equal(pendingWithdrawalOfRicher1.toNumber(), value2.toNumber(), 'richer1可領取餘額錯誤');
+        assert.equal(pendingWithdrawalOfRicher1.toString(), value2.toString(), 'richer1可領取餘額錯誤');
         pendingWithdrawalRicher2 = await instance.pendingWithdrawals.call(richer2);
-        assert.equal(pendingWithdrawalRicher2.toNumber(), 0, 'richer2可領取餘額錯誤');
+        assert.equal(pendingWithdrawalRicher2.toString(), '0', 'richer2可領取餘額錯誤');
         pendingWithdrawalRicher3 = await instance.pendingWithdrawals.call(richer3);
-        assert.equal(pendingWithdrawalRicher3.toNumber(), 0, 'richer3可領取餘額錯誤');
+        assert.equal(pendingWithdrawalRicher3.toString(), '0', 'richer3可領取餘額錯誤');
 
         // 驗證richer2餘額
-        cost = receipt.receipt.gasUsed * tx.gasPrice;
+        cost = new BigNumber(receipt.receipt.gasUsed).mul(tx.gasPrice);
         let balanceRicher2 = await web3.eth.getBalance(richer2);
         assert.equal(
-            balanceRicher2.toNumber(), 
-            previousBalanceRicher2.toNumber() - cost - value2.toNumber(),
-            'richer2餘額不一致'
+            balanceRicher2.toString(), 
+            previousBalanceRicher2.minus(cost).minus(value2).toString(),
+            'richer2a餘額不一致'
         );
 
         // 記錄richer3先前餘額
         let previousBalanceRicher3 = await web3.eth.getBalance(richer3);
 
         // 每次必須至少增加 1 ether
-        let value3 = new BigNumber(ether * 2 + 10**17);
+        // ether*2 + 10**17 < 3 ether
+        let value3 = new BigNumber(ether).mul(2).plus(new BigNumber(10).pow(17));
         // richer3 競爭成為第三任以太王，但richer3是韭菜，只能被收割
         receipt = await instance.becomeRichest(
             {value: value3, from: richer3}
@@ -108,7 +110,7 @@ contract('測試Withdraw合約', async (accounts) => {
         
         // 驗證最大以太幣提交數量
         actualMostSent = await instance.mostSent.call();
-        assert.equal(actualMostSent.toNumber(), value2.toNumber(),
+        assert.equal(actualMostSent.toString(), value2.toString(),
             '最大以太幣提交數量錯誤');
         
         // 驗證以太王
@@ -117,25 +119,25 @@ contract('測試Withdraw合約', async (accounts) => {
         
         // 驗證參賽者可領取餘額
         pendingWithdrawalOfRicher1 = await instance.pendingWithdrawals.call(richer1);
-        assert.equal(pendingWithdrawalOfRicher1.toNumber(), value2.toNumber(), 'richer1可領取餘額錯誤');
+        assert.equal(pendingWithdrawalOfRicher1.toString(), value2.toString(), 'richer1可領取餘額錯誤');
         pendingWithdrawalRicher2 = await instance.pendingWithdrawals.call(richer2);
-        assert.equal(pendingWithdrawalRicher2.toNumber(), 0, 'richer2可領取餘額錯誤');
+        assert.equal(pendingWithdrawalRicher2.toString(), '0', 'richer2可領取餘額錯誤');
         pendingWithdrawalRicher3 = await instance.pendingWithdrawals.call(richer3);
-        assert.equal(pendingWithdrawalRicher3.toNumber(), 0, 'richer3可領取餘額錯誤');
+        assert.equal(pendingWithdrawalRicher3.toString(), '0', 'richer3可領取餘額錯誤');
         
         // 驗證richer3餘額
         cost = receipt.receipt.gasUsed * tx.gasPrice;
         let balanceRicher3 = await web3.eth.getBalance(richer3);
         assert.equal(
-            balanceRicher3.toNumber(), 
-            previousBalanceRicher3.toNumber() - cost - value3.toNumber(),
+            balanceRicher3.toString(), 
+            previousBalanceRicher3.minus(cost).minus(value3).toString(),
             'richer3餘額不一致'
         );
 
         // 記錄richer1先前餘額
         previousBalanceRicher1 = await web3.eth.getBalance(richer1);
 
-        let value1 = new BigNumber(ether * 3);
+        let value1 = new BigNumber(ether).mul(3);
         // richer1 競爭成為第三任以太王
         receipt = await instance.becomeRichest(
             {value: value1, from: richer1}
@@ -144,7 +146,7 @@ contract('測試Withdraw合約', async (accounts) => {
         
         // 驗證最大以太幣提交數量
         actualMostSent = await instance.mostSent.call();
-        assert.equal(actualMostSent.toNumber(), value1.toNumber(),
+        assert.equal(actualMostSent.toString(), value1.toString(),
             '最大以太幣提交數量錯誤');
         
         // 驗證以太王
@@ -153,18 +155,18 @@ contract('測試Withdraw合約', async (accounts) => {
         
         // 驗證參賽者可領取餘額
         pendingWithdrawalOfRicher1 = await instance.pendingWithdrawals.call(richer1);
-        assert.equal(pendingWithdrawalOfRicher1.toNumber(), value2.toNumber(), 'richer1可領取餘額錯誤');
+        assert.equal(pendingWithdrawalOfRicher1.toString(), value2.toString(), 'richer1可領取餘額錯誤');
         pendingWithdrawalRicher2 = await instance.pendingWithdrawals.call(richer2);
-        assert.equal(pendingWithdrawalRicher2.toNumber(), value1.toNumber(), 'richer2可領取餘額錯誤');
+        assert.equal(pendingWithdrawalRicher2.toString(), value1.toString(), 'richer2可領取餘額錯誤');
         pendingWithdrawalRicher3 = await instance.pendingWithdrawals.call(richer3);
-        assert.equal(pendingWithdrawalRicher3.toNumber(), 0, 'richer3可領取餘額錯誤');
+        assert.equal(pendingWithdrawalRicher3.toString(), '0', 'richer3可領取餘額錯誤');
         
         // 驗證richer1餘額
-        cost = receipt.receipt.gasUsed * tx.gasPrice;
+        cost = new BigNumber(receipt.receipt.gasUsed).mul(tx.gasPrice);
         balanceRicher1 = await web3.eth.getBalance(richer1);
         assert.equal(
-            balanceRicher1.toNumber(), 
-            previousBalanceRicher1.toNumber() - cost - value1.toNumber(),
+            balanceRicher1.toString(), 
+            previousBalanceRicher1.minus(cost).minus(value1).toString(),
             'richer1餘額不一致'
         );
         
@@ -177,7 +179,7 @@ contract('測試Withdraw合約', async (accounts) => {
 
         // 驗證最大以太幣提交數量
         actualMostSent = await instance.mostSent.call();
-        assert.equal(actualMostSent.toNumber(), value1.toNumber(),
+        assert.equal(actualMostSent.toString(), value1.toString(),
             '最大以太幣提交數量錯誤');
 
         // 驗證以太王
@@ -186,19 +188,19 @@ contract('測試Withdraw合約', async (accounts) => {
 
         // 驗證參賽者可領取餘額
         pendingWithdrawalOfRicher1 = await instance.pendingWithdrawals.call(richer1);
-        assert.equal(pendingWithdrawalOfRicher1.toNumber(), value2.toNumber(), 'richer1可領取餘額錯誤');
+        assert.equal(pendingWithdrawalOfRicher1.toString(), value2.toString(), 'richer1可領取餘額錯誤');
         pendingWithdrawalRicher2 = await instance.pendingWithdrawals.call(richer2);
-        assert.equal(pendingWithdrawalRicher2.toNumber(), 0, 'richer2可領取餘額錯誤');
+        assert.equal(pendingWithdrawalRicher2.toString(), '0', 'richer2可領取餘額錯誤');
         pendingWithdrawalRicher3 = await instance.pendingWithdrawals.call(richer3);
-        assert.equal(pendingWithdrawalRicher3.toNumber(), 0, 'richer3可領取餘額錯誤');
+        assert.equal(pendingWithdrawalRicher3.toString(), '0', 'richer3可領取餘額錯誤');
 
         // 驗證richer2餘額
-        cost = receipt.receipt.gasUsed * tx.gasPrice;
+        cost = new BigNumber(receipt.receipt.gasUsed).mul(tx.gasPrice);
         balanceRicher2 = await web3.eth.getBalance(richer2);
         assert.equal(
-            balanceRicher2.toNumber(), 
-            previousBalanceRicher2.toNumber() - cost + value1.toNumber(),
-            'richer2餘額不一致'
+            balanceRicher2.toString(), 
+            previousBalanceRicher2.minus(cost).plus(value1).toString(),
+            'richer2b餘額不一致'
         );
 
         // 記錄richer1先前餘額
@@ -210,7 +212,7 @@ contract('測試Withdraw合約', async (accounts) => {
 
         // // 驗證最大以太幣提交數量
         actualMostSent = await instance.mostSent.call();
-        assert.equal(actualMostSent.toNumber(), value1.toNumber(),
+        assert.equal(actualMostSent.toString(), value1.toString(),
             '最大以太幣提交數量錯誤');
 
         // // 驗證以太王
@@ -220,22 +222,23 @@ contract('測試Withdraw合約', async (accounts) => {
         // 驗證參賽者可領取餘額
         pendingWithdrawalOfRicher1 = await instance.pendingWithdrawals.call(richer1);
         // 雖然還有代領取餘額，但以太王執行收割，想再領也會報錯
-        assert.equal(pendingWithdrawalOfRicher1.toNumber(), value2.toNumber(), 'richer1可領取餘額錯誤');
+        assert.equal(pendingWithdrawalOfRicher1.toString(), value2.toString(), 'richer1可領取餘額錯誤');
         pendingWithdrawalRicher2 = await instance.pendingWithdrawals.call(richer2);
-        assert.equal(pendingWithdrawalRicher2.toNumber(), 0, 'richer2可領取餘額錯誤');
+        assert.equal(pendingWithdrawalRicher2.toString(), '0', 'richer2可領取餘額錯誤');
         pendingWithdrawalRicher3 = await instance.pendingWithdrawals.call(richer3);
-        assert.equal(pendingWithdrawalRicher3.toNumber(), 0, 'richer3可領取餘額錯誤');
+        assert.equal(pendingWithdrawalRicher3.toString(), '0', 'richer3可領取餘額錯誤');
 
         // 驗證richer1餘額
         cost = receipt.receipt.gasUsed * tx.gasPrice;
         balanceRicher1 = await web3.eth.getBalance(richer1);
         assert.equal(
-            balanceRicher1.toNumber(), 
-            previousBalanceRicher1.toNumber() 
-            - cost 
-            + valueInit.toNumber() 
-            + value2.toNumber()
-            + value3.toNumber(),
+            balanceRicher1.toString(), 
+            previousBalanceRicher1
+                .minus(cost)
+                .plus(valueInit) 
+                .plus(value2)
+                .plus(value3)
+                .toString(),
             'richer1餘額不一致'
         );
 
@@ -244,13 +247,13 @@ contract('測試Withdraw合約', async (accounts) => {
         balanceRicher1 = await web3.eth.getBalance(richer1);
         balanceRicher2 = await web3.eth.getBalance(richer2);
         balanceRicher3 = await web3.eth.getBalance(richer3);
-        console.log('baseline: %d', baseline.toNumber());
-        console.log(' richer1: %d, win?: %s', 
-            balanceRicher1.toNumber(), balanceRicher1.comparedTo(baseline) > 0);
-        console.log(' richer2: %d, win?: %s', 
-            balanceRicher2.toNumber(), balanceRicher2.comparedTo(baseline) > 0);
-        console.log(' richer3: %d, win?: %s', 
-            balanceRicher3.toNumber(), balanceRicher3.comparedTo(baseline) > 0);
+        console.log('baseline: %s', baseline.toString());
+        console.log(' richer1: %s, win?: %s', 
+            balanceRicher1.toString(), balanceRicher1.gt(baseline));
+        console.log(' richer2: %s, win?: %s', 
+            balanceRicher2.toString(), balanceRicher2.gt(baseline));
+        console.log(' richer3: %s, win?: %s', 
+            balanceRicher3.toString(), balanceRicher3.gt(baseline));
     });
 
     it('應結束遊戲並將收割結果送至指定錢包', async function () {
@@ -289,7 +292,7 @@ contract('測試Withdraw合約', async (accounts) => {
         assert.isTrue(thrown);
 
         let actualBalance = await web3.eth.getBalance(instance.address);
-        assert.equal(actualBalance.toNumber(), valueInit.toNumber(), '合約餘額不一致');
+        assert.equal(actualBalance.toString(), valueInit.toString(), '合約餘額不一致');
     });
 
     it('應無法提前結束遊戲', async function () {
@@ -311,16 +314,16 @@ contract('測試Withdraw合約', async (accounts) => {
         assert.isTrue(thrown);
 
         let actualBalance = await web3.eth.getBalance(instance.address);
-        assert.equal(actualBalance.toNumber(), valueInit.toNumber(), '合約餘額不一致');
+        assert.equal(actualBalance.toString(), valueInit.toString(), '合約餘額不一致');
 
         // 注意: 在測試環境中，每個測試案例在同一個測試程式碼中會共用測試用帳戶餘額
         let baseline = await web3.eth.getBalance(accounts[3]);
         balanceRicher1 = await web3.eth.getBalance(richer1);
         balanceRicher2 = await web3.eth.getBalance(richer2);
         balanceRicher3 = await web3.eth.getBalance(richer3);
-        console.log('baseline: %d', baseline.toNumber());
-        console.log(' richer1: %d', balanceRicher1.toNumber());
-        console.log(' richer2: %d', balanceRicher2.toNumber());
-        console.log(' richer3: %d', balanceRicher3.toNumber());
+        console.log('baseline: %s', baseline.toString());
+        console.log(' richer1: %s', balanceRicher1.toString());
+        console.log(' richer2: %s', balanceRicher2.toString());
+        console.log(' richer3: %s', balanceRicher3.toString());
     });
 })

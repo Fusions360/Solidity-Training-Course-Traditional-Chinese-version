@@ -13,7 +13,7 @@ contract('測試Sorter合約', async (accounts) => {
         let array = [1, 3, 9, 13, 5, 11, 7];
         await instant.set(array, {from: accounts[0]});
         let raw = await instant.get.call();
-        assert.equal(raw[0].toNumber(), 1, '設定結果不正確');
+        assert.equal(raw[0].toString(), 1, '設定結果不正確');
         assert.equal(raw[1].toNumber(), 3, '設定結果不正確');
         assert.equal(raw[2].toNumber(), 9, '設定結果不正確');
         assert.equal(raw[3].toNumber(), 13, '設定結果不正確');

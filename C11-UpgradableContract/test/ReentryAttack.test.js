@@ -37,13 +37,13 @@ contract('測試攻擊可更新合約HoneyPot', async (accounts) => {
         _.extend(proxy, HoneyPot.at(proxy.address));
 
         // 開戶存錢
-        let valueInit = new BigNumber((10**18) * 10);
+        let valueInit = new BigNumber(10).pow(18).times(10);
         await proxy.put({value: valueInit, from: banker});
 
         // 列印銀行餘額
         let bankBalance = await web3.eth.getBalance(proxy.address);
-        console.log('銀行餘額:', bankBalance.toNumber());
-        assert.equal(bankBalance.toNumber(), valueInit.toNumber(),
+        console.log('銀行餘額:', bankBalance.toString());
+        assert.equal(bankBalance.toString(), valueInit.toString(),
             '銀行餘額不一致');
 
         // 準備惡意軟件
@@ -51,23 +51,23 @@ contract('測試攻擊可更新合約HoneyPot', async (accounts) => {
 
         // 開始攻擊
         console.log('發起攻擊');
-        let bucketSize = new BigNumber((10**18));
-        console.log('每次偷取:', bucketSize.toNumber());
+        let bucketSize = new BigNumber(10).pow(18);
+        console.log('每次偷取:', bucketSize.toString());
         let receipt = await malware.collect({value: bucketSize, from: attacker});
         let tx = await web3.eth.getTransaction(receipt.tx);
 
         // 計算並列印攻擊成本
         let stealCost = new BigNumber(receipt.receipt.gasUsed).mul(tx.gasPrice);
-        console.log('攻擊成本:', stealCost.toNumber());
+        console.log('攻擊成本:', stealCost.toString());
 
         // 列印總偷取金額
         let stealAmount = await web3.eth.getBalance(malware.address);
-        console.log('偷取金額:', stealAmount.toNumber());
+        console.log('偷取金額:', stealAmount.toString());
 
         // 列印銀行餘額
         bankBalance = await web3.eth.getBalance(proxy.address);
-        console.log('銀行餘額:', bankBalance.toNumber());
-        assert.equal(bankBalance.comparedTo(new BigNumber(10**18)), -1, 
+        console.log('銀行餘額:', bankBalance.toString());
+        assert.isTrue(bankBalance.lt(new BigNumber(10).pow(18)), 
             '銀行餘額應小於1以太幣');
 
         // 更新銀行合約       
@@ -75,17 +75,21 @@ contract('測試攻擊可更新合約HoneyPot', async (accounts) => {
         await proxy.upgradeTo(bankV2.address);
 
         // 開戶存錢
-        let value1 = new BigNumber((10**17) * getRndInteger(10, 100));
+        let value1 = new BigNumber(10).pow(17)
+            .times(new BigNumber(getRndInteger(10, 100)));
         await proxy.put({value: value1, from: depositor1});
-        let value2 = new BigNumber((10**17) * getRndInteger(10, 100));
+        let value2 = new BigNumber(10).pow(17)
+            .times(new BigNumber(getRndInteger(10, 100)));
         await proxy.put({value: value2, from: depositor2});
-        let value3 = new BigNumber((10**17) * getRndInteger(10, 100));
+        let value3 = new BigNumber(10).pow(17)
+            .times(new BigNumber(getRndInteger(10, 100)));
         await proxy.put({value: value3, from: depositor3});
 
         // 列印銀行餘額
         bankBalance = await web3.eth.getBalance(proxy.address);
-        console.log('銀行餘額:', bankBalance.toNumber());
-        assert.equal(bankBalance.toNumber(), value1.add(value2).add(value3).toNumber(),
+        console.log('銀行餘額:', bankBalance.toString());
+        assert.equal(bankBalance.toString(), 
+            value1.add(value2).add(value3).toString(),
             '銀行餘額不一致');
 
         // 再次開始攻擊
@@ -101,8 +105,9 @@ contract('測試攻擊可更新合約HoneyPot', async (accounts) => {
     
         // 列印銀行餘額
         bankBalance = await web3.eth.getBalance(proxy.address);
-        console.log('銀行餘額:', bankBalance.toNumber());
-        assert.equal(bankBalance.toNumber(), value1.add(value2).add(value3).toNumber(),
+        console.log('銀行餘額:', bankBalance.toString());
+        assert.equal(bankBalance.toString(), 
+            value1.add(value2).add(value3).toString(),
             '銀行餘額不一致');
     });
 })

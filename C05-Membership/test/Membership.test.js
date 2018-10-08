@@ -16,8 +16,8 @@ contract('測試Membership合約', async (accounts) => {
         await membership.register(name, {from: member});
         let actualMember = await membership.members(member);
         assert.equal(actualMember[0], name, '名字不一致');
-        assert.equal(actualMember[1].toNumber(), 0, '點數應為0');
-        assert.equal(actualMember[2].toNumber(), 0, '應為Basic級別');
+        assert.equal(actualMember[1].toString(), '0', '點數應為0');
+        assert.equal(actualMember[2].toString(), '0', '應為Basic級別');
 
         // 購買直至成為VVIP
         for (let i = 1; i <= 10; i++) {
@@ -25,13 +25,14 @@ contract('測試Membership合約', async (accounts) => {
             await membership.shop(10098, {from: member});
             actualMember = await membership.members(member);
             assert.equal(actualMember[0], name, '名字不一致');
-            assert.equal(actualMember[1].toNumber(), 100 * i, '點數不一致');
+            assert.equal(actualMember[1].toString(), 
+                new BigNumber(100).times(i).toString(), '點數不一致');
             if (i >= 10) {
-                assert.equal(actualMember[2].toNumber(), 2, '應為VVIP級別');
+                assert.equal(actualMember[2].toString(), '2', '應為VVIP級別');
             } else if (i >= 5) {
-                assert.equal(actualMember[2].toNumber(), 1, '應為VIP級別');
+                assert.equal(actualMember[2].toString(), '1', '應為VIP級別');
             } else {
-                assert.equal(actualMember[2].toNumber(), 0, '應為Basic級別');
+                assert.equal(actualMember[2].toString(), '0', '應為Basic級別');
             }
         }
 
@@ -39,7 +40,7 @@ contract('測試Membership合約', async (accounts) => {
         await membership.unregister({from: member});
         actualMember = await membership.members(member);
         assert.equal(actualMember[0], '', '名字不一致');
-        assert.equal(actualMember[1].toNumber(), 0, '點數應為0');
-        assert.equal(actualMember[2].toNumber(), 0, '應為Basic級別');
+        assert.equal(actualMember[1].toString(), '0', '點數應為0');
+        assert.equal(actualMember[2].toString(), '0', '應為Basic級別');
     });
 })

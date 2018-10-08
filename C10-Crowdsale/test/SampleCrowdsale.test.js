@@ -13,25 +13,25 @@ contract('Test SampleCrowdsale contract', async (accounts) => {
         let closingTime = openingTime.add(3600); // One hour later
         let rate = new BigNumber(10);
         let wallet = accounts[1];
-        let cap = new BigNumber((10**18) * (1000)); // 1000 ether
-        let goal = new BigNumber((10**18) * (100)); // 100 ether
+        let cap = new BigNumber(10).pow(18).times(1000); // 1000 ether
+        let goal = new BigNumber(10).pow(18).times(100); // 100 ether
         let crowdsale = await SampleCrowdsale.new(openingTime, closingTime, 
             rate, wallet, cap, token.address, goal, {from: owner});
         assert.ok(crowdsale.address);
         let actualOpeningTime = await crowdsale.openingTime();
-        assert.equal(actualOpeningTime.toNumber(), openingTime.toNumber(), 
+        assert.equal(actualOpeningTime.toString(), openingTime.toString(), 
             'Opening time is incorrect.');
         let actualClosingTime = await crowdsale.closingTime();
-        assert.equal(actualClosingTime.toNumber(), closingTime.toNumber(), 
+        assert.equal(actualClosingTime.toString(), closingTime.toString(), 
             'Closing time is incorrect.');
         let actualRate = await crowdsale.rate();
-        assert.equal(actualRate.toNumber(), rate.toNumber(), 'Rate is incorrect.');
+        assert.equal(actualRate.toString(), rate.toString(), 'Rate is incorrect.');
         let actualWallet = await crowdsale.wallet();
         assert.equal(actualWallet, wallet, 'Wallet address is incorrect.');
         let actualCap= await crowdsale.cap();
-        assert.equal(actualCap.toNumber(), cap.toNumber(), 'Cap is incorrect.');
+        assert.equal(actualCap.toString(), cap.toString(), 'Cap is incorrect.');
         let actualGoal = await crowdsale.goal();
-        assert.equal(actualGoal.toNumber(), goal.toNumber(), 'Goal is incorrect.');
+        assert.equal(actualGoal.toString(), goal.toString(), 'Goal is incorrect.');
         let actualToken = await crowdsale.token();
         assert.equal(actualToken, token.address, 'Token address is incorrect.');
     });

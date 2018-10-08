@@ -13,7 +13,7 @@ contract('測試MyToken合約', async (accounts) => {
     it('應成功部署合約並造幣', async function () {
         let token = await MyToken.new(
             NAME, SYMBOL, DECIMALS, {from: owner});
-        let mintAmount = new BigNumber((10**18) * 10000);
+        let mintAmount = new BigNumber(10).pow(18).times(10000);
         await token.mint(owner, mintAmount, {from: owner});
 
         let name = await token.name();
@@ -26,11 +26,11 @@ contract('測試MyToken合約', async (accounts) => {
         assert.equal(decimals, DECIMALS, '小數點位數錯誤');
 
         let totalSupply = await token.totalSupply();
-        assert.equal(totalSupply.toNumber(), mintAmount.toNumber(), 
+        assert.equal(totalSupply.toString(), mintAmount.toString(), 
             '總發幣數量錯誤');
 
         let balance = await token.balanceOf(owner);
-        assert.equal(balance.toNumber(), mintAmount.toNumber(), 
+        assert.equal(balance.toString(), mintAmount.toString(), 
             'owner代幣餘額錯誤');
 
         let finished = await token.mintingFinished();
@@ -44,27 +44,27 @@ contract('測試MyToken合約', async (accounts) => {
     it('應成功轉帳', async function () {
         let token = await MyToken.new(
             NAME, SYMBOL, DECIMALS, {from: owner});
-        let mintAmount = new BigNumber((10**18) * 10000);
+        let mintAmount = new BigNumber(10).pow(18).times(10000);
         await token.mint(owner, mintAmount, {from: owner});
 
-        let transferAmount = new BigNumber((10**18) * 10);
+        let transferAmount = new BigNumber(10).pow(18).times(10);
         await token.transfer(user1, transferAmount, {from: owner});
 
         let balanceOfOwner = await token.balanceOf(owner);
-        assert.equal(balanceOfOwner.toNumber(), 
-            mintAmount.sub(transferAmount).toNumber(), 
+        assert.equal(balanceOfOwner.toString(), 
+            mintAmount.sub(transferAmount).toString(), 
             'owner代幣餘額錯誤');
         
         let balanceOfUser1 = await token.balanceOf(user1);
-        assert.equal(balanceOfUser1.toNumber(), transferAmount.toNumber(), 
-            'owner代幣餘額錯誤');
+        assert.equal(balanceOfUser1.toString(), 
+            transferAmount.toString(), 'owner代幣餘額錯誤');
     });
 
     it('應成功搶紅包，大灑幣', async function () {
         let token = await MyToken.new(
             NAME, SYMBOL, DECIMALS, {from: owner});
         
-        let transferAmount = new BigNumber((10**18) * 10);
+        let transferAmount = new BigNumber(10).pow(18).times(10);
         let mintAmount = transferAmount.mul(3);
         await token.mint(owner, mintAmount, {from: owner});
 
@@ -80,12 +80,12 @@ contract('測試MyToken合約', async (accounts) => {
                     owner, accounts[i], transferAmount, {from: accounts[i]}
                 );
                 balance = await token.balanceOf(accounts[i]);
-                assert.equal(balance.toNumber(), transferAmount.toNumber(), 
+                assert.equal(balance.toString(), transferAmount.toString(), 
                     'user代幣餘額錯誤');
 
                 balanceOfOwner = await token.balanceOf(owner);
-                assert.equal(balanceOfOwner.toNumber(), 
-                    mintAmount.sub(transferAmount.mul(i)).toNumber(), 
+                assert.equal(balanceOfOwner.toString(), 
+                    mintAmount.sub(transferAmount.mul(i)).toString(), 
                     'owner代幣餘額錯誤');
             } else {
                 let thrown = true;
@@ -98,10 +98,10 @@ contract('測試MyToken合約', async (accounts) => {
                 }
                 assert.isTrue(thrown);
                 balance = await token.balanceOf(accounts[i]);
-                assert.equal(balance.toNumber(), 0, 'user代幣餘額錯誤');
+                assert.equal(balance.toString(), '0', 'user代幣餘額錯誤');
 
                 balanceOfOwner = await token.balanceOf(owner);
-                assert.equal(balanceOfOwner.toNumber(), 0, 'owner代幣餘額錯誤');
+                assert.equal(balanceOfOwner.toString(), '0', 'owner代幣餘額錯誤');
             }
         }
     });

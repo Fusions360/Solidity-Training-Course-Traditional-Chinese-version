@@ -17,38 +17,41 @@ contract('測試攻擊合約HoneyPot', async (accounts) => {
 
     it('應成功把銀行偷到少於1以太幣', async function () {
         // 開銀行
-        let valueInit = new BigNumber((10**18) * 10);
+        let valueInit = new BigNumber(10).pow(18).times(10);
         let bank = await HoneyPot.new({value: valueInit, from: banker});
 
         // 開戶存錢
-        let value1 = new BigNumber((10**17) * getRndInteger(10, 100));
+        let value1 = new BigNumber(10)
+            .pow(17).times(new BigNumber(getRndInteger(10, 100)));
         await bank.put({value: value1, from: depositor1});
-        let value2 = new BigNumber((10**17) * getRndInteger(10, 100));
+        let value2 = new BigNumber(10)
+            .pow(17).times(new BigNumber(getRndInteger(10, 100)));
         await bank.put({value: value2, from: depositor2});
-        let value3 = new BigNumber((10**17) * getRndInteger(10, 100));
+        let value3 = new BigNumber(10)
+            .pow(17).times(new BigNumber(getRndInteger(10, 100)));
         await bank.put({value: value3, from: depositor3});
 
         // 準備惡意軟件
         let malware = await HoneyPotCollect.new(bank.address, {from: attacker});
 
         // 開始攻擊
-        let bucketSize = new BigNumber((10**18));
-        console.log('每次偷取:', bucketSize.toNumber());
+        let bucketSize = new BigNumber(10).pow(18);
+        console.log('每次偷取:', bucketSize.toString());
         let receipt = await malware.collect({value: bucketSize, from: attacker});
         let tx = await web3.eth.getTransaction(receipt.tx);
 
         // 計算並列印攻擊成本
         let stealCost = new BigNumber(receipt.receipt.gasUsed).mul(tx.gasPrice);
-        console.log('攻擊成本:', stealCost.toNumber());
+        console.log('攻擊成本:', stealCost.toString());
 
         // 列印總偷取金額
         let stealAmount = await web3.eth.getBalance(malware.address);
-        console.log('偷取金額:', stealAmount.toNumber());
+        console.log('偷取金額:', stealAmount.toString());
 
         // 列印銀行餘額
         let bankBalance = await web3.eth.getBalance(bank.address);
-        console.log('銀行餘額:', bankBalance.toNumber());
-        assert.equal(bankBalance.comparedTo(new BigNumber(10**18)), -1, 
+        console.log('銀行餘額:', bankBalance.toString());
+        assert.isTrue(bankBalance.lt(new BigNumber(10).pow(18)), 
             '銀行餘額應小於1以太幣');
 
         // 收割不當獲利
@@ -57,11 +60,11 @@ contract('測試攻擊合約HoneyPot', async (accounts) => {
 
         // 計算並列印收割成本
         let killCost = new BigNumber(receipt.receipt.gasUsed).mul(tx.gasPrice);
-        console.log('收割成本:', killCost.toNumber());
+        console.log('收割成本:', killCost.toString());
 
         // 列印最終獲利金額
         let attackerBalance = await web3.eth.getBalance(attacker);
         let baselineBalance = await web3.eth.getBalance(accounts[5]);
-        console.log('最終獲利:', attackerBalance.sub(baselineBalance).toNumber());
+        console.log('最終獲利:', attackerBalance.sub(baselineBalance).toString());
     });
 })

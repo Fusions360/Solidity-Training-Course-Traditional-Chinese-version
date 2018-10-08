@@ -15,7 +15,8 @@ contract('測試Modifiers合約', async (accounts) => {
 
     it('應因執行加法數值太小拋出例外', async function () {
         let previousValue = await modifiers.value();
-        assert.equal(previousValue.toNumber(), defaultValue, '數值不一致');
+        assert.equal(previousValue.toString(), defaultValue.toString(), 
+            '數值不一致');
         let value = new BigNumber(10);
         let thrown = false;
         try {
@@ -25,23 +26,25 @@ contract('測試Modifiers合約', async (accounts) => {
         }
         assert.isTrue(thrown, '應拋出例外');
         let actualValue = await modifiers.value();
-        assert.equal(actualValue.toNumber(), 
-            previousValue.toNumber(), '數值應一致');
+        assert.equal(actualValue.toString(), 
+            previousValue.toString(), '數值應一致');
     });
 
     it('應無法透過減法改變數值', async function () {
         let previousValue = await modifiers.value();
-        assert.equal(previousValue.toNumber(), defaultValue, '數值不一致');
+        assert.equal(previousValue.toString(), 
+            defaultValue.toString(), '數值不一致');
         let value = new BigNumber(10);
         await modifiers.substract(value, {from: accounts[0]});
         let actualValue = await modifiers.value();
-        assert.equal(actualValue.toNumber(), 
-            previousValue.toNumber(), '數值應一致');
+        assert.equal(actualValue.toString(), 
+            previousValue.toString(), '數值應一致');
     });
 
     it('應因乘行加法數值太小拋出例外', async function () {
         let previousValue = await modifiers.value();
-        assert.equal(previousValue.toNumber(), defaultValue, '數值不一致');
+        assert.equal(previousValue.toString(), 
+            defaultValue.toString(), '數值不一致');
         let value = new BigNumber(10);
         let thrown = false;
         try {
@@ -51,28 +54,31 @@ contract('測試Modifiers合約', async (accounts) => {
         }
         assert.isTrue(thrown, '應拋出例外');
         let actualValue = await modifiers.value();
-        assert.equal(actualValue.toNumber(), 
-            previousValue.toNumber(), '數值應一致');
+        assert.equal(actualValue.toString(), 
+            previousValue.toString(), '數值應一致');
     });
 
     it('應無法透過乘法改變數值', async function () {
         let previousValue = await modifiers.value();
-        assert.equal(previousValue.toNumber(), defaultValue, '數值不一致');
+        assert.equal(previousValue.toString(), 
+            defaultValue.toString(), '數值不一致');
         let value = new BigNumber(100);
         await modifiers.multiply(value, {from: accounts[0]});
         let actualValue = await modifiers.value();
-        assert.equal(actualValue.toNumber(), 
-            previousValue.toNumber(), '數值應一致');
+        assert.equal(actualValue.toString(), 
+            previousValue.toString(), '數值應一致');
     });
 
     it('應永遠回傳0', async function () {
         let previousValue = await modifiers.value();
-        assert.equal(previousValue.toNumber(), defaultValue, '數值不一致');
+        assert.equal(previousValue.toString(), 
+            defaultValue.toString(), '數值不一致');
         let value = new BigNumber(10);
-        let returnedValue = await modifiers.divide.call(value, {from: accounts[0]});
-        assert.equal(returnedValue.toNumber(), 0, '回傳值應為0');
+        let returnedValue = await modifiers.divide.call(value, 
+            {from: accounts[0]});
+        assert.equal(returnedValue.toString(), '0', '回傳值應為0');
         let actualValue = await modifiers.value();
-        assert.equal(actualValue.toNumber(), 
-            previousValue.toNumber(), '數值應一致');
+        assert.equal(actualValue.toString(), 
+            previousValue.toString(), '數值應一致');
     });
 })

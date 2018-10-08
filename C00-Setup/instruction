@@ -2,6 +2,8 @@ Install development environment.
 
 1. Install NodeJS 5.0+
    https://nodejs.org/en/download/
+   If you are using Windows O/S, suggest further running
+   > npm uninstall --global --production windows-build-tools
 
 2. Install Truffle by NodeJS
    https://truffleframework.com/docs/getting_started/installation

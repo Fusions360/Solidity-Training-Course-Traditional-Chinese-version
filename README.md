@@ -106,6 +106,6 @@ truffle test
     - 儲存合約 Storage Contract
 13. C12-ECRecover
     - 使用ECRecover驗證使用者簽署
-14. C12-ERC721
+14. C13-ERC721
     - 介紹 ERC721 代幣合約 (使用 OpenZepplin 的ERC721合約)
     - 整合ERC20實作ERC721特店消費情境
